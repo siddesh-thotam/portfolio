@@ -46,7 +46,7 @@ export default function DesktopPage() {
   const DEFAULT_ICONS: IconData[] = [
     { id: "computer", x: 70, y: 50, img: APP_ICONS.computer },
     { id: "documents", x: 80, y: 200, img: APP_ICONS.documents },
-    { id: "games", x: 80, y: 350, img: APP_ICONS.games },
+    { id: "games", x: 70, y: 350, img: APP_ICONS.games },
     { id: "terminal", x: 80, y: 500, img: APP_ICONS.terminal },
     { id: "settings", x: 1425, y: 510, img: APP_ICONS.settings },
     { id: "recycle", x: 1425, y: 350, img: APP_ICONS.recycle }, // bottom right
