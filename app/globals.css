@@ -25,7 +25,7 @@ body {
   position: relative;
 }
 
-/* ICON SYSTEM */
+/* ICONS */
 .icons {
   position: absolute;
   inset: 0;
@@ -37,9 +37,7 @@ body {
   pointer-events: none;
 }
 
-/* ============================
-   INDIVIDUAL ICON SIZES
-============================ */
+/* INDIVIDUAL ICON SIZES */
 .icon-computer img { width: 100px; height: 100px; }
 .icon-documents img { width: 90px; height: 90px; }
 .icon-games img { width: 100px; height: 100px; }
@@ -47,33 +45,7 @@ body {
 .icon-settings img { width: 90px; height: 90px; }
 .icon-recycle img { width: 80px; height: 80px; }
 
-/* ============================
-   INDIVIDUAL ICON POSITIONS
-   (SAFE AND NON-COLLIDING)
-============================ */
-
-/* Left-side icons */
-.icon-computer { top: 50px; left: 70px; }
-.icon-documents { top: 220px; left: 80px; }
-.icon-games { top: 380px; left: 60px; }
-.icon-terminal { top: 540px; left: 70px; }
-
-/* Right-side icons (fixed for your screen height) */
-.icon-settings { 
-  position: absolute; 
-  top: 20px; 
-  right: -90px; 
-}
-
-.icon-recycle { 
-  position: absolute; 
-  top: 20px; 
-  right: -80px; 
-}
-
-/* ============================
-   WINDOW FRAME
-============================ */
+/* WINDOW */
 .window {
   position: relative;
   width: 100%;
@@ -89,7 +61,6 @@ body {
   pointer-events: none;
 }
 
-/* WINDOW CONTENT AREA */
 .window-content {
   position: absolute;
   top: 80px;
@@ -100,11 +71,10 @@ body {
   pointer-events: auto;
 }
 
-/* WINDOW CONTROLS */
 .window-controls {
   position: absolute;
-  top: 12px;
-  right: 36px;
+  top: 14px;
+  right: 40px;
   display: flex;
   gap: 20px;
 }

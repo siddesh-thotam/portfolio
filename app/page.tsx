@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef } from "react";
 import { Rnd } from "react-rnd";
 import Clock from "./components/Clock";
 
-/* ALL ICON TYPES */
 type AppType =
   | "computer"
   | "documents"
@@ -13,7 +12,6 @@ type AppType =
   | "recycle"
   | "settings";
 
-/* Icon definition */
 type IconData = {
   id: AppType;
   x: number;
@@ -21,7 +19,6 @@ type IconData = {
   img: string;
 };
 
-/* Window definition */
 type Win = {
   id: string;
   title: string;
@@ -29,7 +26,6 @@ type Win = {
   minimized?: boolean;
 };
 
-/* ICON → IMAGE MAP */
 const APP_ICONS: Record<AppType, string> = {
   computer: "/icons/computer.png",
   documents: "/icons/folder.png",
@@ -40,82 +36,96 @@ const APP_ICONS: Record<AppType, string> = {
 };
 
 export default function DesktopPage() {
-  /* ============================
-        DEFAULT ICON POSITIONS
-     ============================ */
-  const DEFAULT_ICONS: IconData[] = [
-    { id: "computer", x: 70, y: 50, img: APP_ICONS.computer },
-    { id: "documents", x: 80, y: 200, img: APP_ICONS.documents },
-    { id: "games", x: 70, y: 350, img: APP_ICONS.games },
-    { id: "terminal", x: 80, y: 500, img: APP_ICONS.terminal },
-    { id: "settings", x: 1425, y: 510, img: APP_ICONS.settings },
-    { id: "recycle", x: 1425, y: 350, img: APP_ICONS.recycle }, // bottom right
-  ];
+  /* ---------------------------------------
+     ICON POSITIONS (DRAGGABLE + CLICKABLE)
+  ---------------------------------------- */
 
-  const [icons, setIcons] = useState<IconData[]>(DEFAULT_ICONS);
+  const [icons, setIcons] = useState<IconData[]>([
+    { id: "computer", x: 60, y: 60, img: APP_ICONS.computer },
+    { id: "documents", x: 60, y: 200, img: APP_ICONS.documents },
+    { id: "games", x: 50, y: 350, img: APP_ICONS.games },
+    { id: "terminal", x: 60, y: 500, img: APP_ICONS.terminal },
 
-  /* ICON DRAG — NOT SAVED */
+    // moved safely to the right
+    { id: "settings", x: 1425, y: 60, img: APP_ICONS.settings },
+    { id: "recycle", x: 1425, y: 200, img: APP_ICONS.recycle },
+  ]);
+
+  const dragTimeout = useRef<NodeJS.Timeout | null>(null);
+  const dragActive = useRef(false);
+
   const moveIcon = (id: AppType, x: number, y: number) => {
     setIcons((prev) =>
       prev.map((icon) => (icon.id === id ? { ...icon, x, y } : icon))
     );
   };
 
-  /* ============================
-       WINDOW MANAGEMENT
-     ============================ */
+  /* ---------------------------------------
+     WINDOWS
+  ---------------------------------------- */
 
   const [windows, setWindows] = useState<Win[]>([]);
 
-  const openWindow = useCallback((title: string, app: AppType) => {
+  const openWindow = (title: string, app: AppType) => {
     setWindows((prev) => [
       ...prev,
       { id: String(Date.now()), title, app, minimized: false },
     ]);
-  }, []);
-
-  const closeWindow = (id: string) => {
-    setWindows((prev) => prev.filter((w) => w.id !== id));
   };
 
-  const minimizeWindow = (id: string) => {
+  const closeWindow = (id: string) =>
+    setWindows((prev) => prev.filter((w) => w.id !== id));
+
+  const minimizeWindow = (id: string) =>
     setWindows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, minimized: true } : w))
     );
-  };
 
-  const restoreWindow = (id: string) => {
+  const restoreWindow = (id: string) =>
     setWindows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, minimized: false } : w))
     );
-  };
 
-  /* ============================
-             RENDER
-     ============================ */
+  /* ---------------------------------------
+     RENDER
+  ---------------------------------------- */
 
   return (
     <div className="desktop">
-      {/* 🔹 DRAGGABLE ICONS */}
+      {/* ==========================
+          DESKTOP ICONS (DRAG + CLICK)
+      =========================== */}
       <div className="icons">
         {icons.map((icon) => (
           <Rnd
             key={icon.id}
-            default={{
-              x: icon.x,
-              y: icon.y,
-              width: "auto",
-              height: "auto",
-            }}
-            enableResizing={false}
+            default={{ x: icon.x, y: icon.y, width: "auto", height: "auto" }}
             bounds="parent"
-            onDragStop={(e, d) => moveIcon(icon.id, d.x, d.y)}
+            enableResizing={false}
+            onDragStart={() => {
+              dragActive.current = true;
+            }}
+            onDragStop={(e, d) => {
+              moveIcon(icon.id, d.x, d.y);
+              dragActive.current = false;
+            }}
           >
             <div
               className={`icon icon-${icon.id}`}
-              onDoubleClick={() =>
-                openWindow(icon.id.toUpperCase(), icon.id)
-              }
+              onMouseDown={() => {
+                dragTimeout.current = setTimeout(() => {
+                  dragActive.current = true;
+                }, 180);
+              }}
+              onMouseUp={() => {
+                if (dragTimeout.current) clearTimeout(dragTimeout.current);
+
+                if (!dragActive.current) {
+                  openWindow(icon.id.toUpperCase(), icon.id);
+                }
+
+                dragActive.current = false;
+              }}
             >
               <img src={icon.img} />
             </div>
@@ -123,17 +133,19 @@ export default function DesktopPage() {
         ))}
       </div>
 
-      {/* 🔹 WINDOWS */}
+      {/* ==========================
+          WINDOWS
+      =========================== */}
       {windows.map(
         (win) =>
           !win.minimized && (
             <Rnd
               key={win.id}
-              default={{ x: 300, y: 180, width: 640, height: 420 }}
+              default={{ x: 240, y: 160, width: 720, height: 480 }}
               bounds="window"
             >
               <div className="window">
-                <div className="window-frame"></div>
+                <div className="window-frame" />
 
                 <div className="window-controls">
                   <img
@@ -148,14 +160,16 @@ export default function DesktopPage() {
 
                 <div className="window-content">
                   <h2>{win.title}</h2>
-                  <p>Window UI content goes here.</p>
+                  <p>Your content goes here…</p>
                 </div>
               </div>
             </Rnd>
           )
       )}
 
-      {/* 🔹 TASKBAR */}
+      {/* ==========================
+          TASKBAR
+      =========================== */}
       <div className="taskbar">
         <div className="taskbar-icons">
           {windows.map((w) => (
